@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Hızlı Sapan (Sling Puck) - Cyber Arena & Online Çok Oyunculu</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Top Scoreboard HUD: Sits cleanly ABOVE board container so opponent pucks are never covered! -->
+      <header class="top-hud">
+        <!-- Player Profile (Left) -->
+        <div class="player-card player-self">
+          <div class="avatar-ring cyan-glow">
+            <img id="hud-player-avatar" class="avatar-img" alt="Sen" />
+          </div>
+          <div class="player-details">
+            <span class="player-name" id="hud-player-name">Sen</span>
+            <div class="player-sub" id="hud-player-sub">Sv. 1 • 🏆 100</div>
+            <!-- 5 Stone Status Chips -->
+            <div class="stone-chips" id="player-stone-chips">
+              <span class="chip-dot active" title="Taş 1"></span>
+              <span class="chip-dot active" title="Taş 2"></span>
+              <span class="chip-dot active" title="Taş 3"></span>
+              <span class="chip-dot active" title="Taş 4"></span>
+              <span class="chip-dot active" title="Taş 5"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Stage / Match Badge & Turn Countdown Timer -->
+        <div class="hud-center-stage">
+          <span class="hud-badge" id="hud-match-badge">BÖLÜM 1</span>
+          <div class="vs-banner">
+            <span id="player-puck-count">5</span>
+            <span class="vs-label">VS</span>
+            <span id="ai-puck-count">5</span>
+          </div>
+          <!-- Turn Countdown Timer (12s per shot) -->
+          <div class="hud-turn-timer" id="hud-turn-timer" title="Atış Süresi">⏱️ 12s</div>
+        </div>
+
+        <!-- Opponent Profile (Right) -->
+        <div class="player-card player-opponent">
+          <div class="player-details text-right">
+            <span class="player-name" id="hud-opponent-name">Çaylak Can</span>
+            <div class="player-sub" id="hud-opponent-sub">Sv. 1 • 🏆 100</div>
+            <!-- 5 Stone Status Chips -->
+            <div class="stone-chips opponent-chips" id="opponent-stone-chips">
+              <span class="chip-dot active" title="Taş 1"></span>
+              <span class="chip-dot active" title="Taş 2"></span>
+              <span class="chip-dot active" title="Taş 3"></span>
+              <span class="chip-dot active" title="Taş 4"></span>
+              <span class="chip-dot active" title="Taş 5"></span>
+            </div>
+          </div>
+          <div class="avatar-ring red-glow">
+            <img id="hud-opponent-avatar" class="avatar-img" alt="Rakip" />
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="hud-actions">
+          <button class="hud-btn hud-play-btn" id="btn-hud-play" title="Hemen Online Maç Başlat">🏆 OYNA</button>
+          <button class="hud-btn" id="btn-sound-toggle" title="Sesi Aç/Kapat">🔊</button>
+          <button class="hud-btn" id="btn-open-menu" title="Menü">☰</button>
+        </div>
+      </header>
+
+      <!-- 3D Stadium Board Container: 100% unobstructed view from top to bottom -->
+      <div class="board-container">
+        <!-- Main Game Canvas (440x740 virtual resolution) -->
+        <canvas id="game-canvas" width="440" height="740"></canvas>
+      </div>
+
+      <!-- Bottom Turn Indicator Banner (Floating below board) -->
+      <div class="turn-banner player-turn" id="turn-banner">
+        <span class="pulse-indicator"></span>
+        <span id="turn-text">Senin Sıran! Kendi Taşını Çek & Karşıya Fırlat</span>
+      </div>
+
+      <!-- Floating Emoji Reaction Bar -->
+      <div class="emoji-bar" id="emoji-bar">
+        <button class="emoji-btn" data-emoji="🎯" title="Hedef">🎯</button>
+        <button class="emoji-btn" data-emoji="🔥" title="Ateş">🔥</button>
+        <button class="emoji-btn" data-emoji="👏" title="Alkış">👏</button>
+        <button class="emoji-btn" data-emoji="😎" title="Havalı">😎</button>
+        <button class="emoji-btn" data-emoji="😭" title="Ağla">😭</button>
+        <button class="emoji-btn" data-emoji="⚡" title="Şimşek">⚡</button>
+      </div>
+
+      <!-- Emoji Popup Floating Animation Container -->
+      <div class="emoji-popup-layer" id="emoji-popup-layer"></div>
+
+      <!-- Main Menu Modal -->
+      <div class="modal-overlay hidden" id="modal-menu">
+        <div class="modal-card">
+          <h1 class="modal-title">HIZLI SAPAN</h1>
+          <p class="modal-subtitle">Cyber Arena & Online Çok Oyunculu</p>
+
+          <div class="menu-buttons">
+            <button class="btn-primary" id="btn-play-online-main">
+              <span>🏆</span> OYNA (ONLINE MAÇ BUL)
+            </button>
+            <button class="btn-secondary" id="btn-open-multiplayer">
+              <span>🌐</span> ÖZEL ODA KUR / KATIL
+            </button>
+            <button class="btn-secondary" id="btn-resume-game">
+              <span>▶</span> BÖLÜMLERE DEVAM ET
+            </button>
+            <button class="btn-secondary" id="btn-select-levels">
+              <span>⭐</span> BÖLÜM SEÇİMİ (1 - 10)
+            </button>
+            <button class="btn-secondary" id="btn-mode-pvp">
+              <span>👥</span> 2 KİŞİLİK MOD (AYNI CİHAZ)
+            </button>
+            <button class="btn-secondary" id="btn-how-to-play">
+              <span>ℹ️</span> NASIL OYNANIR?
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Online Multiplayer Modal -->
+      <div class="modal-overlay hidden" id="modal-multiplayer">
+        <div class="modal-card multiplayer-card">
+          <h2 class="modal-title">ÇEVRİMİÇİ KAPİŞMA</h2>
+          <p class="modal-subtitle">Arkadaşınla veya gerçek rakiplerle canlı oyna!</p>
+
+          <!-- Player Nickname input -->
+          <div class="input-group">
+            <label for="online-nickname">Oyuncu Adın:</label>
+            <input id="online-nickname" type="text" maxlength="12" value="Sen" placeholder="Adını yaz...">
+          </div>
+
+          <!-- Tabs Segmented Control -->
+          <div class="tab-control">
+            <button class="tab-btn active" data-tab="tab-create">Oda Kur</button>
+            <button class="tab-btn" data-tab="tab-join">Odaya Katıl</button>
+            <button class="tab-btn" data-tab="tab-quick">Hızlı Eşleşme</button>
+          </div>
+
+          <!-- Tab 1: Create Room -->
+          <div class="tab-pane active" id="tab-create">
+            <p class="tab-desc">Yeni bir oda kur ve 4 haneli kodu arkadaşına ilet.</p>
+            <button class="btn-primary" id="btn-create-room">
+              <span>➕</span> ODA OLUŞTUR
+            </button>
+            <div class="room-code-panel hidden" id="panel-room-created">
+              <div class="code-badge-label">ODA KODUN:</div>
+              <div class="code-badge-container">
+                <span class="code-digits" id="created-room-code">----</span>
+                <button class="btn-copy" id="btn-copy-code" title="Kodu Kopyala">Kopyala 📋</button>
+              </div>
+              <div class="waiting-indicator">
+                <span class="spinner"></span>
+                <span>Arkadaşının katılması bekleniyor...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Join Room -->
+          <div class="tab-pane hidden" id="tab-join">
+            <p class="tab-desc">Arkadaşının verdiği 4 haneli oda kodunu gir:</p>
+            <div class="input-group">
+              <input id="input-room-code" class="code-input" type="text" maxlength="4" placeholder="Örn: 4821">
+            </div>
+            <button class="btn-primary" id="btn-join-room">
+              <span>🚀</span> ODAYA KATIL
+            </button>
+            <div class="tab-status-msg" id="join-status-msg"></div>
+          </div>
+
+          <!-- Tab 3: Quick Match -->
+          <div class="tab-pane hidden" id="tab-quick">
+            <p class="tab-desc">Çevrimiçi rastgele bir rakiple hemen eşleş!</p>
+            <button class="btn-primary" id="btn-quick-match">
+              <span>⚡</span> RAKİP BUL
+            </button>
+            <div class="waiting-indicator hidden" id="quick-match-waiting">
+              <span class="spinner"></span>
+              <span>Rakip aranıyor...</span>
+            </div>
+          </div>
+
+          <button class="btn-secondary" id="btn-close-multiplayer">Geri Dön</button>
+        </div>
+      </div>
+
+      <!-- Disconnected / Opponent Left Modal -->
+      <div class="modal-overlay hidden" id="modal-disconnect">
+        <div class="modal-card">
+          <h2 class="modal-title" style="color: #e67e22;">BAĞLANTI KESİLDİ</h2>
+          <p class="modal-subtitle" id="disconnect-msg">Rakip oyundan ayrıldı.</p>
+          <div class="menu-buttons">
+            <button class="btn-primary" id="btn-disconnect-menu">ANA MENÜ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Select Modal -->
+      <div class="modal-overlay hidden" id="modal-levels">
+        <div class="modal-card">
+          <h2 class="modal-title">BÖLÜMLER</h2>
+          <p class="modal-subtitle">10 Benzersiz Siber Arena ve Karikatür Rakipler</p>
+
+          <div class="level-grid" id="level-grid">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <button class="btn-secondary" id="btn-close-levels">Geri Dön</button>
+        </div>
+      </div>
+
+      <!-- Victory Modal -->
+      <div class="modal-overlay hidden" id="modal-win">
+        <div class="modal-card">
+          <h2 class="modal-title" style="color: #00ffc8;">TEBRİKLER! KAZANDIN!</h2>
+          <p class="modal-subtitle" id="win-desc">Tüm taşlarını karşıya geçirmeyi başardın!</p>
+
+          <div class="trophy-reward-box" id="win-trophy-box">
+            <span class="trophy-icon">🏆</span>
+            <span class="trophy-gain" id="win-trophy-gain">+30 KUPA</span>
+            <span class="trophy-total" id="win-trophy-total">Toplam: 130 🏆 (Sv. 1)</span>
+          </div>
+
+          <div class="stars-display" id="win-stars">★★★</div>
+
+          <div class="stats-box">
+            <div>Atış Sayısı: <strong id="win-turns">5</strong></div>
+            <div>Kalan Taşın: <strong>0</strong></div>
+          </div>
+
+          <div class="menu-buttons">
+            <button class="btn-primary" id="btn-next-online-match">🏆 YENİ MAÇ BUL (OYNA)</button>
+            <button class="btn-secondary" id="btn-next-level">SONRAKİ BÖLÜM ▶</button>
+            <button class="btn-secondary" id="btn-replay-level">TEKRAR OYNA ↺</button>
+            <button class="btn-secondary" id="btn-menu-from-win">ANA MENÜ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Defeat Modal -->
+      <div class="modal-overlay hidden" id="modal-lose">
+        <div class="modal-card">
+          <h2 class="modal-title" style="color: #ff4757;">RAKİP KAZANDI!</h2>
+          <p class="modal-subtitle" id="lose-desc">Rakip tüm taşlarını senin sahana geçirdi. Pes etmek yok!</p>
+
+          <div class="trophy-reward-box loss-box" id="lose-trophy-box">
+            <span class="trophy-icon">🏆</span>
+            <span class="trophy-gain loss" id="lose-trophy-gain">-10 KUPA</span>
+            <span class="trophy-total" id="lose-trophy-total">Toplam: 90 🏆 (Sv. 1)</span>
+          </div>
+
+          <div class="menu-buttons">
+            <button class="btn-primary" id="btn-retry-online-match">🏆 YENİ RAKİP BUL (OYNA)</button>
+            <button class="btn-secondary" id="btn-retry-lose">TEKRAR DENE ↺</button>
+            <button class="btn-secondary" id="btn-menu-from-lose">ANA MENÜ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matchmaking Radar Modal -->
+      <div class="modal-overlay hidden" id="modal-matchmaking">
+        <div class="modal-card matchmaking-card">
+          <h2 class="modal-title pulse-text" id="matchmaking-title">RAKİP ARANIYOR...</h2>
+          <p class="modal-subtitle" id="matchmaking-subtitle">Seviyene uygun bir çevrimiçi rakip aranıyor</p>
+
+          <div class="radar-container">
+            <div class="radar-circle radar-c1"></div>
+            <div class="radar-circle radar-c2"></div>
+            <div class="radar-circle radar-c3"></div>
+            <div class="radar-sweep"></div>
+            <div class="radar-center-dot"></div>
+          </div>
+
+          <div class="matchmaking-players">
+            <!-- Player Card -->
+            <div class="match-player-box" id="match-player-box">
+              <div class="avatar-ring cyan-glow">
+                <img id="match-player-avatar" class="avatar-img" alt="Sen" />
+              </div>
+              <span class="match-player-name" id="match-player-name">Sen</span>
+              <span class="match-player-stats" id="match-player-stats">Sv. 1 • 🏆 100</span>
+            </div>
+
+            <div class="match-vs-tag">VS</div>
+
+            <!-- Opponent Card (searching / found) -->
+            <div class="match-player-box" id="match-opponent-box">
+              <div class="avatar-ring red-glow searching-pulse" id="match-opponent-ring">
+                <img id="match-opponent-avatar" class="avatar-img" alt="Rakip" />
+              </div>
+              <span class="match-player-name" id="match-opponent-name">Aranıyor...</span>
+              <span class="match-player-stats" id="match-opponent-stats">Seviye ? • 🏆 ?</span>
+            </div>
+          </div>
+
+          <div class="matchmaking-timer" id="matchmaking-timer">Arama Süresi: 00:01</div>
+
+          <button class="btn-secondary" id="btn-cancel-matchmaking">Aramayı İptal Et</button>
+        </div>
+      </div>
+
+      <!-- How to Play Modal -->
+      <div class="modal-overlay hidden" id="modal-tutorial">
+        <div class="modal-card">
+          <h2 class="modal-title">NASIL OYNANIR?</h2>
+
+          <div class="tutorial-list">
+            <div class="tutorial-step">
+              <span class="step-num">1</span>
+              <div>Kendi sahandaki 5 taştan birine dokun ve geriye çekerek nişan al. (Yalnızca kendi takımının taşlarını atabilirsin).</div>
+            </div>
+            <div class="tutorial-step">
+              <span class="step-num">2</span>
+              <div>Lazer nişangahı ortadaki geçiş deliğine denk getir. Yan duvarlardan bant sektirerek açılı atışlar yapabilirsin!</div>
+            </div>
+            <div class="tutorial-step">
+              <span class="step-num">3</span>
+              <div>Parmağını bırak ve taşı fırlat! Arkasından hızına göre renkli bir plazma kuyruğu oluşacak.</div>
+            </div>
+            <div class="tutorial-step">
+              <span class="step-num">4</span>
+              <div><strong>Kazanma Şartı:</strong> Kendi 5 taşını da karşı sahaya ilk geçiren maçı kazanır!</div>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="btn-close-tutorial">ANLADIM, BAŞLA!</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
