@@ -2,16 +2,27 @@
   "name": "sling-puck",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "main": "index.js",
+  "description": "Hızlı Sapan (Sling Puck) - Cyber Arena & Online Çok Oyunculu Web Masa Oyunu",
+  "main": "index.html",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/halilibrahimozdemir25/sling-puck.git"
+  },
+  "keywords": [
+    "game",
+    "sling-puck",
+    "matter-js",
+    "websocket",
+    "multiplayer",
+    "html5-canvas"
+  ],
+  "author": "Halil İbrahim ÖZDEMİR",
+  "license": "MIT",
   "dependencies": {
     "canvas-confetti": "^1.9.4",
     "matter-js": "^0.20.0",
